@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductRequest;
 use App\Http\Requests\StockRequest;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Products;
 use App\Models\Stock;
 use Illuminate\Http\Request;
@@ -175,7 +176,7 @@ class AdminController extends Controller
         return redirect()->route('admin:products')->with('_success', 'Product deleted successfully');        
 
     } 
-    function view_product($pro_id)
+    public function view_product($pro_id)
     {
 
         $product = Products::with('category','stocks')->find($pro_id);
@@ -201,7 +202,6 @@ class AdminController extends Controller
         }
         
     }
-
 
     //stock start
     public function stocks(Request $request)
@@ -303,6 +303,142 @@ class AdminController extends Controller
         {
             return redirect()->back()->with('_error','Connection error');
         }
+
+    }
+
+    public function orders(Request $request)
+    {
+        
+        if($request->ajax())
+        {
+            $data = Order::has('orderDetails')->with('orderDetails')->orderBy('id','desc')->get();
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('total_products',function($row){
+                        
+                        $total_products = $row->orderDetails()->count();
+                        return $total_products;
+                        
+                    })
+                    ->addColumn('order_status',function($row){
+                        
+                        $badge_color = 'secondary update_status';
+                        if($row->status == 'accept')
+                        {
+                            $badge_color = 'success';
+                        }
+                        else if($row->status == 'reject')
+                        {
+                            $badge_color = 'danger';
+                        }
+                        
+                        $html = '<button class="btn btn-sm btn-outline-'. $badge_color .' " data-id="'. $row->id .'">'. ucfirst($row->status) .'</button>';
+                        return $html;
+                    })
+                    ->addColumn('action', function($row){
+
+                        $btn = '<span class="action-buttons">';
+                        
+                           $btn .= '<a href="'. route('admin:view_order',$row->id) .'" class="btn btn-secondary btn-sm">View</a>';
+
+                        $btn .= '<span>';
+
+                        return $btn;
+                            
+                    })
+                    ->rawColumns(['total_products','order_status','action'])
+                    ->make(true);
+        }
+        
+        $data = [
+
+            'page_head' => 'Orders',
+
+        ];
+
+        return view('admin.orders.list',$data);
+        
+    }
+
+    public function view_order($order_id)
+    {
+
+        $order = Order::has('orderDetails')->with('orderDetails','orderDetails.product')->find($order_id);
+
+        if($order)
+        {
+
+            $data = [
+
+                'page_head' => 'View Order',
+                'order' => $order
+            ];
+    
+            return view('admin.orders.view',$data);
+            
+        }
+        else
+        {
+            return redirect()->back()->with('_error','Order not found');
+        }
+        
+    }
+    public function update_order_status(Request $request)
+    {
+
+        
+        $order = Order::has('orderDetails')->with('orderDetails')->find($request->order_id);
+
+        if($order)
+        {
+
+            $order_arr = [
+                'status' => $request->status
+            ];
+
+            Order::where('id',$request->order_id)->update($order_arr);
+
+            $stock_arr = [];
+            foreach($order->orderDetails as $od)
+            {
+                
+                $stock_arr[] = [
+
+                    'product_id' => $od->product_id,
+                    'qty' => $od->qty,
+                    'type' => 'add',
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'created_at' => date('Y-m-d H:i:s')
+                    
+                ];
+            }
+           
+
+            if($stock_arr)
+            {
+                Stock::insert($stock_arr);
+            }
+
+            $output = [
+                'status' => true,
+                'redirect' => route('admin:orders'),
+                'msg' => 'Order status updated',
+            ];
+            
+        }
+        else
+        {
+
+            $output = [
+                'status' => false,
+                'redirect' => route('admin:orders'),
+                'msg' => 'Order not found',
+            ];
+            
+        }
+
+
+        return response()->json($output);
 
     }
     

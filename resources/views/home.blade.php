@@ -22,11 +22,10 @@
                             
                             <a href="{{ route('admin:stocks') }}">Stocks</a>
                         </div>
-                        {{-- 
                         <div class="col-sm-12">
 
-                            <a href="{{ route('admin:orders') }}"></a>
-                        </div> --}}
+                            <a href="{{ route('admin:orders') }}">Orders</a>
+                        </div>
                     </div>
                 </div>
             </div>

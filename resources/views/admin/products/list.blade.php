@@ -61,15 +61,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this product?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="close_pro_del_modal" data-dismiss="modal">Cancel</button>
                 <form action="javascript:void(0)" method="POST" style="display: inline" id="delete_product_modal">
                     @csrf
                     @method('DELETE')
@@ -155,6 +152,11 @@
     $('#deleteProductModal').modal('show');
 
 
+    })
+
+    $(document).on('click','#close_pro_del_modal',function(){
+         // hide the confirmation modal
+        $('#deleteProductModal').modal('hide');
     })
 
 </script>
