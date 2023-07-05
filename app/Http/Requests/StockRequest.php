@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StockRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StockRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -22,7 +23,16 @@ class StockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'type' => 'required',
+            'product_id' => 'required',
+            'stock' => 'required|numeric',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'product_id.required' => 'The product field is required.',
         ];
     }
 }

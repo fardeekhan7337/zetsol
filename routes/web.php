@@ -36,12 +36,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth'], 'as' => 'admin:'], 
     Route::get('/view_product/{id}', [AdminController::class, 'view_product'])->name('view_product');
 
     // STOCK
-    Route::get('/products', [AdminController::class, 'products'])->name('products');
-    Route::get('/add_product', [AdminController::class, 'add_product'])->name('add_product');
-    Route::post('/save_product', [AdminController::class, 'save_product'])->name('save_product');
-    Route::get('/{id}/edit_product', [AdminController::class, 'edit_product'])->name('edit_product');
-    Route::put('/update_product/{id}', [AdminController::class, 'update_product'])->name('update_product');
-    Route::delete('/delete_product/{id}', [AdminController::class, 'delete_product'])->name('delete_product');
-    Route::get('/view_product/{id}', [AdminController::class, 'view_product'])->name('view_product');
+    Route::get('/stocks', [AdminController::class, 'stocks'])->name('stocks');
+    Route::get('/add_stock', [AdminController::class, 'add_stock'])->name('add_stock');
+    Route::get('/remove_stock', [AdminController::class, 'remove_stock'])->name('remove_stock');
+    Route::post('/save_stock', [AdminController::class, 'save_stock'])->name('save_stock');
+    // Route::get('/{id}/edit_product', [AdminController::class, 'edit_product'])->name('edit_product');
+    // Route::put('/update_product/{id}', [AdminController::class, 'update_product'])->name('update_product');
+    // Route::delete('/delete_product/{id}', [AdminController::class, 'delete_product'])->name('delete_product');
+    // Route::get('/view_product/{id}', [AdminController::class, 'view_product'])->name('view_product');
     
 });

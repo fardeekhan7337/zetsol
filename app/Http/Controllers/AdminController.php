@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\StockRequest;
 use App\Models\Category;
 use App\Models\Products;
 use App\Models\Stock;
@@ -165,6 +166,8 @@ class AdminController extends Controller
     public function delete_product($product_id)
     {
 
+        // delete all stock of product
+        Stock::where('product_id',$product_id)->delete();
         $product = Products::findOrFail($product_id);
         
         $product->delete();
@@ -199,4 +202,108 @@ class AdminController extends Controller
         
     }
 
+
+    //stock start
+    public function stocks(Request $request)
+    {
+        
+        if($request->ajax())
+        {
+            $data = Stock::with('product')->whereHas('product')->get();
+            return Datatables::of($data)
+                    ->addIndexColumn()
+                    // ->addColumn('action', function($row){
+
+                    //     $btn = '<span class="action-buttons">';
+                        
+                   
+                    //        $btn .= '<a href="javascript:void(0)" data-id="'. $row->id .'" class="delete_row btn btn-danger btn-sm">Delete</a>';
+                  
+
+                    //     $btn .= '<span>';
+
+                    //     return $btn;
+                            
+                    // })
+                    // ->rawColumns(['action'])
+                    ->make(true);
+        }
+        
+        $data = [
+
+            'page_head' => 'Stocks',
+
+        ];
+
+        return view('admin.stock.list',$data);
+        
+    }
+
+    public function add_stock()
+    {
+        
+        $data = [
+
+            'page_head' => 'Add Stock',
+            'products' => Products::all()
+
+        ];
+
+        return view('admin.stock.add',$data);
+
+    }
+
+    public function remove_stock()
+    {
+        
+        $data = [
+
+            'page_head' => 'Remove Stock',
+            'products' => Products::all()
+
+        ];
+
+        return view('admin.stock.remove',$data);
+
+    }
+
+    public function save_stock(StockRequest $request)
+    {
+        
+        if($request->type != 'add')
+        {
+
+            $product = Products::find($request->product_id);
+
+            if($product->available_qty < $request->stock)
+            {
+
+                return redirect()->back()->with('_error','The product available stock is: '. $product->available_qty);
+            }
+
+        }
+
+        $stock_arr = [
+            'product_id' => $request->product_id,
+            'qty' => $request->stock,
+            'type' => $request->type,
+        ];
+
+        
+        $stock = Stock::create($stock_arr);
+
+        if($stock)
+        {
+
+            $stock_type = $request->type == 'add'?'added':'removed';
+            return redirect()->route('admin:stocks')->with('_success','Stock '. $stock_type .' successfully');
+            
+        }
+        else
+        {
+            return redirect()->back()->with('_error','Connection error');
+        }
+
+    }
+    
 }

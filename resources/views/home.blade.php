@@ -18,10 +18,11 @@
                         <div class="col-sm-12">
                             <a href="{{ route('admin:products') }}">Products</a>
                         </div>
-                        {{-- <div class="col-sm-12">
-
-                            <a href="{{ route('admin:stock') }}"></a>
+                        <div class="col-sm-12">
+                            
+                            <a href="{{ route('admin:stocks') }}">Stocks</a>
                         </div>
+                        {{-- 
                         <div class="col-sm-12">
 
                             <a href="{{ route('admin:orders') }}"></a>
